@@ -1,0 +1,7 @@
+{
+  "name": "Lumina Home - Modern Furniture Retail",
+  "description": "A premium, AI-powered furniture e-commerce experience featuring smart search, interactive design assistance, and a seamless shopping interface.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
