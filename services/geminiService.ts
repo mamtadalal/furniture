@@ -2,10 +2,18 @@
 import { GoogleGenAI } from "@google/genai";
 
 export class GeminiService {
-  private ai: GoogleGenAI;
+  private aiInstance: GoogleGenAI | null = null;
 
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  private get ai(): GoogleGenAI {
+    if (!this.aiInstance) {
+      // Safely resolve the API key at runtime
+      const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+      if (!apiKey) {
+        console.warn("Lumina Service: API Key is missing. AI features will be unavailable.");
+      }
+      this.aiInstance = new GoogleGenAI({ apiKey: apiKey || 'MISSING_KEY' });
+    }
+    return this.aiInstance;
   }
 
   async getDesignAdvice(userVibe: string): Promise<string> {
