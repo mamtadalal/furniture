@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, ExternalLink, Loader2 } from 'lucide-react';
-import { geminiService } from '../services/geminiService';
+import { geminiService } from '../services/geminiService.ts';
 
 export const ContactUs: React.FC = () => {
   const [locationInfo, setLocationInfo] = useState<{ text: string; links: any[] } | null>(null);
@@ -17,7 +17,7 @@ export const ContactUs: React.FC = () => {
         lat = position.coords.latitude;
         lng = position.coords.longitude;
       } catch (e) {
-        console.log("Geolocation not available");
+        console.log("Geolocation not available or denied");
       }
       
       const info = await geminiService.getLocationInfo(lat, lng);
@@ -38,7 +38,6 @@ export const ContactUs: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-        {/* Contact Info & Form */}
         <div className="space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex gap-4">
@@ -47,10 +46,10 @@ export const ContactUs: React.FC = () => {
               </div>
               <div>
                 <h4 className="font-bold text-stone-900 mb-1">Visit Us</h4>
-                <p className="text-sm text-stone-500 leading-relaxed">
+                <address className="text-sm text-stone-500 leading-relaxed not-italic">
                   123 Design Way<br />
                   San Francisco, CA 94103
-                </p>
+                </address>
               </div>
             </div>
             <div className="flex gap-4">
@@ -91,16 +90,16 @@ export const ContactUs: React.FC = () => {
             </div>
           </div>
 
-          <form className="bg-white p-8 rounded-3xl border border-stone-100 shadow-xl shadow-stone-200/50 space-y-6">
+          <form className="bg-white p-8 rounded-3xl border border-stone-100 shadow-xl shadow-stone-200/50 space-y-6" onSubmit={(e) => e.preventDefault()}>
             <h3 className="text-xl font-bold text-stone-900 mb-2">Send us a message</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-stone-400 uppercase tracking-widest">Full Name</label>
-                <input type="text" className="w-full bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-stone-900/10" placeholder="John Doe" />
+                <input type="text" required className="w-full bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-stone-900/10" placeholder="John Doe" />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-stone-400 uppercase tracking-widest">Email Address</label>
-                <input type="email" className="w-full bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-stone-900/10" placeholder="john@example.com" />
+                <input type="email" required className="w-full bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-stone-900/10" placeholder="john@example.com" />
               </div>
             </div>
             <div className="space-y-2">
@@ -114,15 +113,14 @@ export const ContactUs: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-stone-400 uppercase tracking-widest">Message</label>
-              <textarea rows={4} className="w-full bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-stone-900/10 resize-none" placeholder="How can we help you?"></textarea>
+              <textarea rows={4} required className="w-full bg-stone-50 border border-stone-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-stone-900/10 resize-none" placeholder="How can we help you?"></textarea>
             </div>
-            <button type="submit" className="w-full bg-stone-900 text-white font-bold py-4 rounded-xl hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
+            <button type="submit" className="w-full bg-stone-900 text-white font-bold py-4 rounded-xl hover:bg-stone-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-stone-900/20">
               <Send className="w-4 h-4" /> Send Message
             </button>
           </form>
         </div>
 
-        {/* Map Section */}
         <div className="flex flex-col h-full">
           <div className="bg-stone-100 rounded-3xl overflow-hidden relative grow min-h-[400px]">
             {loading ? (
@@ -138,6 +136,7 @@ export const ContactUs: React.FC = () => {
                 </div>
                 <div className="grow">
                   <iframe 
+                    title="Lumina Showroom Map"
                     width="100%" 
                     height="100%" 
                     frameBorder="0" 

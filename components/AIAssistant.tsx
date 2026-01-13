@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Sparkles, Send, X, Loader2 } from 'lucide-react';
-import { geminiService } from '../services/geminiService';
+import { geminiService } from '../services/geminiService.ts';
 
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,13 +22,13 @@ export const AIAssistant: React.FC = () => {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {isOpen ? (
-        <div className="bg-white w-80 md:w-96 rounded-2xl shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-fade-in">
+        <div className="bg-white w-80 md:w-96 rounded-2xl shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-fade-in" role="dialog" aria-label="AI Design Assistant">
           <div className="bg-stone-900 p-4 text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-yellow-400" />
               <span className="font-semibold text-sm">Design Assistant</span>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:opacity-70">
+            <button onClick={() => setIsOpen(false)} className="hover:opacity-70" aria-label="Close Assistant">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -42,6 +42,7 @@ export const AIAssistant: React.FC = () => {
                     value={vibe}
                     onChange={(e) => setVibe(e.target.value)}
                     placeholder="e.g. Minimalist japandi with lots of plants..."
+                    aria-label="Your home's vibe"
                     className="w-full h-24 p-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-stone-900 outline-none resize-none"
                   />
                   <button 
@@ -74,6 +75,7 @@ export const AIAssistant: React.FC = () => {
       ) : (
         <button 
           onClick={() => setIsOpen(true)}
+          aria-label="Open Design Assistant"
           className="bg-stone-900 text-white p-4 rounded-full shadow-lg hover:scale-105 hover:shadow-xl transition-all flex items-center gap-2 group"
         >
           <Sparkles className="w-5 h-5 text-yellow-400 group-hover:rotate-12 transition-transform" />

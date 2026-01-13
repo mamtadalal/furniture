@@ -1,11 +1,11 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Header } from './components/Header';
-import { ProductCard } from './components/ProductCard';
-import { AIAssistant } from './components/AIAssistant';
-import { ContactUs } from './components/ContactUs';
-import { PRODUCTS } from './data';
-import { Product, CartItem, Category, SortOption } from './types';
+import { Header } from './components/Header.tsx';
+import { ProductCard } from './components/ProductCard.tsx';
+import { AIAssistant } from './components/AIAssistant.tsx';
+import { ContactUs } from './components/ContactUs.tsx';
+import { PRODUCTS } from './data.ts';
+import { Product, CartItem, Category, SortOption } from './types.ts';
 import { ChevronRight, Filter, ShoppingBag, X, Info } from 'lucide-react';
 
 const SORT_OPTIONS: SortOption[] = [
@@ -26,10 +26,15 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const shopRef = useRef<HTMLElement>(null);
 
-  // Persistence for cart
   useEffect(() => {
     const savedCart = localStorage.getItem('lumina-cart');
-    if (savedCart) setCart(JSON.parse(savedCart));
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Failed to parse cart", e);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -113,7 +118,7 @@ export default function App() {
   const cartTotal = cart.reduce((acc, item) => acc + (item.discountPrice || item.price) * item.quantity, 0);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col selection:bg-stone-900 selection:text-white">
       <Header 
         onSearch={(q) => { setSearchQuery(q); if(q) scrollToShop(); }} 
         cartCount={cart.reduce((a, b) => a + b.quantity, 0)} 
@@ -125,13 +130,13 @@ export default function App() {
       <main className="flex-grow">
         {currentPage === 'shop' ? (
           <>
-            {/* Hero Section */}
             <section className="relative h-[60vh] md:h-[70vh] flex items-center overflow-hidden bg-stone-100">
               <div className="absolute inset-0">
                 <img 
                   src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000" 
                   className="w-full h-full object-cover opacity-60"
-                  alt="Hero Furniture"
+                  alt=""
+                  aria-hidden="true"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-stone-50 via-stone-50/80 to-transparent"></div>
               </div>
@@ -164,11 +169,9 @@ export default function App() {
               </div>
             </section>
 
-            {/* Content Section */}
-            <section ref={shopRef} className="max-w-7xl mx-auto px-4 py-16">
-              {/* Controls */}
+            <section ref={shopRef} className="max-w-7xl mx-auto px-4 py-16" aria-label="Product listings">
               <div className="flex flex-col md:flex-row gap-6 md:items-center justify-between mb-12">
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide no-scrollbar">
+                <nav className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide no-scrollbar" aria-label="Categories">
                   {CATEGORIES.map(cat => (
                     <button
                       key={cat}
@@ -178,18 +181,20 @@ export default function App() {
                         ? 'bg-stone-900 text-white shadow-lg' 
                         : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-900'
                       }`}
+                      aria-pressed={activeCategory === cat}
                     >
                       {cat}
                     </button>
                   ))}
-                </div>
+                </nav>
 
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-sm text-stone-500 font-medium">
+                  <label htmlFor="sort-select" className="flex items-center gap-2 text-sm text-stone-500 font-medium">
                     <Filter className="w-4 h-4" />
                     Sort by:
-                  </div>
+                  </label>
                   <select 
+                    id="sort-select"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
                     className="bg-white border border-stone-200 rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-stone-900"
@@ -201,7 +206,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredAndSortedProducts.length > 0 ? (
                   filteredAndSortedProducts.map(product => (
@@ -234,19 +238,19 @@ export default function App() {
         )}
       </main>
 
-      {/* Cart Drawer Overlay */}
       {isCartOpen && (
         <div className="fixed inset-0 z-[60] flex justify-end">
           <div 
             className="absolute inset-0 bg-stone-900/20 backdrop-blur-sm transition-opacity"
             onClick={() => setIsCartOpen(false)}
+            aria-hidden="true"
           ></div>
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-fade-in origin-right">
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-fade-in origin-right" role="dialog" aria-modal="true" aria-label="Shopping Cart">
             <div className="p-6 border-b border-stone-100 flex items-center justify-between">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5" /> Shopping Bag ({cart.reduce((a, b) => a + b.quantity, 0)})
               </h2>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
+              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-stone-100 rounded-full" aria-label="Close cart">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -259,16 +263,16 @@ export default function App() {
                 </div>
               ) : (
                 cart.map(item => (
-                  <div key={item.id} className="flex gap-4">
+                  <div key={item.id} className="flex gap-4 animate-fade-in">
                     <img src={item.image} className="w-20 h-24 object-cover rounded-xl" alt={item.name} />
                     <div className="flex-grow">
                       <h4 className="font-semibold text-stone-900">{item.name}</h4>
                       <p className="text-stone-500 text-xs mb-2">{item.category}</p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden">
-                          <button onClick={() => updateQuantity(item.id, -1)} className="px-2 py-1 hover:bg-stone-50">-</button>
+                          <button onClick={() => updateQuantity(item.id, -1)} className="px-2 py-1 hover:bg-stone-50" aria-label="Decrease quantity">-</button>
                           <span className="px-3 py-1 text-sm font-bold border-x border-stone-200">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, 1)} className="px-2 py-1 hover:bg-stone-50">+</button>
+                          <button onClick={() => updateQuantity(item.id, 1)} className="px-2 py-1 hover:bg-stone-50" aria-label="Increase quantity">+</button>
                         </div>
                         <span className="font-bold text-stone-900">
                           ${((item.discountPrice || item.price) * item.quantity).toLocaleString()}
@@ -294,13 +298,13 @@ export default function App() {
                 </div>
                 <div className="flex items-center justify-between text-stone-500">
                   <span>Shipping</span>
-                  <span className="font-medium text-green-600">Calculated at checkout</span>
+                  <span className="font-medium text-green-600 italic">Calculated at checkout</span>
                 </div>
                 <div className="flex items-center justify-between text-lg font-bold text-stone-900 pt-2 border-t border-stone-200">
                   <span>Total</span>
                   <span>${cartTotal.toLocaleString()}</span>
                 </div>
-                <button className="w-full bg-stone-900 text-white font-bold py-4 rounded-2xl hover:bg-stone-800 transition-colors shadow-lg">
+                <button className="w-full bg-stone-900 text-white font-bold py-4 rounded-2xl hover:bg-stone-800 transition-colors shadow-lg shadow-stone-900/10">
                   Checkout Now
                 </button>
               </div>
@@ -309,11 +313,9 @@ export default function App() {
         </div>
       )}
 
-      {/* AI Assistant Button */}
       <AIAssistant />
 
-      {/* Footer */}
-      <footer className="bg-stone-900 text-stone-400 py-16">
+      <footer className="bg-stone-900 text-stone-400 py-16" role="contentinfo">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-1">
             <div className="text-2xl font-bold display-font tracking-tight text-white mb-6">LUMINA</div>
@@ -321,9 +323,9 @@ export default function App() {
               Modern living designed with intent. We source the finest materials to create furniture that lasts generations.
             </p>
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full border border-stone-800 flex items-center justify-center hover:bg-stone-800 cursor-pointer text-[10px] font-bold">IG</div>
-              <div className="w-10 h-10 rounded-full border border-stone-800 flex items-center justify-center hover:bg-stone-800 cursor-pointer text-[10px] font-bold">TW</div>
-              <div className="w-10 h-10 rounded-full border border-stone-800 flex items-center justify-center hover:bg-stone-800 cursor-pointer text-[10px] font-bold">FB</div>
+              <a href="#" className="w-10 h-10 rounded-full border border-stone-800 flex items-center justify-center hover:bg-stone-800 transition-colors text-[10px] font-bold" aria-label="Instagram">IG</a>
+              <a href="#" className="w-10 h-10 rounded-full border border-stone-800 flex items-center justify-center hover:bg-stone-800 transition-colors text-[10px] font-bold" aria-label="Twitter">TW</a>
+              <a href="#" className="w-10 h-10 rounded-full border border-stone-800 flex items-center justify-center hover:bg-stone-800 transition-colors text-[10px] font-bold" aria-label="Facebook">FB</a>
             </div>
           </div>
           
@@ -356,9 +358,10 @@ export default function App() {
               <input 
                 type="email" 
                 placeholder="email@example.com" 
+                aria-label="Email for newsletter"
                 className="w-full bg-stone-800 border-none rounded-xl py-3 pl-4 pr-12 text-sm text-white focus:ring-1 focus:ring-stone-600 outline-none"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-stone-900 p-1.5 rounded-lg">
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white text-stone-900 p-1.5 rounded-lg" aria-label="Subscribe">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </form>
